@@ -119,8 +119,8 @@ st.markdown("""
 @st.cache_resource
 def get_database():
     """Get database connection with pithy Claude AI analysis"""
-    # Use clean database with pithy analyses
-    db_path = "database_clean.db"
+    # Use properly fixed database with intelligent content extraction
+    db_path = "database_fixed.db"
     
     if Path(db_path).exists():
         return sqlite3.connect(db_path, check_same_thread=False)
