@@ -236,28 +236,59 @@ class EvidenceBasedHistorian:
         elif 'exclusion' in quote_lower or 'exclude' in quote_lower:
             if evidence['immigrant_terms']:
                 immigrant_term = evidence['immigrant_terms'][0]
+                # Fix grammar: ensure plural form for "aliens" 
+                if immigrant_term == 'alien':
+                    immigrant_term = 'aliens'
+                elif immigrant_term == 'foreigner':
+                    immigrant_term = 'foreigners'
+                elif immigrant_term == 'immigrant':
+                    immigrant_term = 'immigrants'
                 return f"Advocates for excluding {immigrant_term} during {context}"
             else:
                 return f"Supports exclusionary immigration policy during {context}"
         
         elif 'benefit' in quote_lower or 'advantage' in quote_lower:
             if evidence['immigrant_terms']:
-                immigrant_term = evidence['immigrant_terms'][0] 
+                immigrant_term = evidence['immigrant_terms'][0]
+                # Fix grammar: ensure proper form
+                if immigrant_term == 'alien':
+                    immigrant_term = 'alien immigration'  # Better grammar for benefits context
+                elif immigrant_term == 'foreigner':
+                    immigrant_term = 'foreign immigration'
                 return f"Defends economic benefits of {immigrant_term} during {context}"
             else:
                 return f"Argues for immigration benefits during {context}"
         
         elif 'skill' in quote_lower and evidence['immigrant_terms']:
             immigrant_term = evidence['immigrant_terms'][0]
+            # Fix grammar for skilled context
+            if immigrant_term == 'alien':
+                immigrant_term = 'alien workers'
+            elif immigrant_term == 'foreigner':
+                immigrant_term = 'foreign workers'
+            elif immigrant_term == 'immigrant':
+                immigrant_term = 'immigrant workers'
             return f"Discusses skilled {immigrant_term} in the context of {context}"
         
         elif 'mischief' in quote_lower or 'harm' in quote_lower:
             if evidence['immigrant_terms'] and evidence['worker_types']:
                 immigrant_term = evidence['immigrant_terms'][0]
                 worker_type = evidence['worker_types'][0]
+                # Fix grammar: pluralize if needed
+                if immigrant_term == 'alien':
+                    immigrant_term = 'aliens'
+                elif immigrant_term == 'foreigner':
+                    immigrant_term = 'foreigners'
+                elif immigrant_term == 'immigrant':
+                    immigrant_term = 'immigrants'
                 return f"Warns of harm to {worker_type} from {immigrant_term} during {context}"
             elif evidence['immigrant_terms']:
                 immigrant_term = evidence['immigrant_terms'][0]
+                # Fix grammar: use proper form for harm context
+                if immigrant_term == 'alien':
+                    immigrant_term = 'alien immigration'
+                elif immigrant_term == 'foreigner':
+                    immigrant_term = 'foreign immigration'
                 return f"Warns of economic harm from {immigrant_term} during {context}"
         
         elif 'trade' in evidence['economic_concepts'] and evidence['immigrant_terms']:
@@ -270,6 +301,11 @@ class EvidenceBasedHistorian:
         elif evidence['immigrant_terms'] and evidence['economic_concepts']:
             immigrant_term = evidence['immigrant_terms'][0]
             econ_concept = evidence['economic_concepts'][0]
+            # Fix grammar: use proper form for general connections
+            if immigrant_term == 'alien':
+                immigrant_term = 'alien immigration'
+            elif immigrant_term == 'foreigner':
+                immigrant_term = 'foreign immigration'
             return f"Connects {immigrant_term} to {econ_concept} concerns during {context}"
         
         # Frame-based fallback with context
