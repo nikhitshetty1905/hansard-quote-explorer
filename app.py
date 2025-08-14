@@ -130,7 +130,7 @@ def main():
     st.markdown("*Immigration × Labour Market Debates in UK Parliament*")
     
     # Info box
-    st.info("🏛️ **Academic Research Tool** | Explore 430+ parliamentary quotes on immigration and labour with enhanced framing analysis | Only high-quality quotes (confidence ≥ 5) are displayed")
+    st.info("🏛️ **Academic Research Tool** | Explore 530+ parliamentary quotes on immigration and labour (1900-1930) with verified speaker attributions and enhanced framing analysis | Only high-quality quotes (confidence ≥ 5) are displayed")
     
     db = get_database()
     
@@ -143,7 +143,7 @@ def main():
     available_years = [row[0] for row in years_data]
     
     # Controls
-    col1, col2 = st.columns(2)
+    col1, col2, col3 = st.columns(3)
     
     with col1:
         if len(available_years) > 1:
@@ -162,16 +162,37 @@ def main():
             st.write(f"Year: {selected_years[0]}")
     
     with col2:
+        # Add sorting control
+        sort_options = {
+            "Chronological (Oldest First)": "year, date, confidence DESC",
+            "Highest Quality First": "confidence DESC, year, date"
+        }
+        
+        selected_sort = st.selectbox(
+            "Sort Order",
+            options=list(sort_options.keys()),
+            index=0,
+            help="Choose how to organize the quotes"
+        )
+        
+    with col3:
         # Frame filter
         frames = db.execute("SELECT DISTINCT frame FROM quotes ORDER BY frame").fetchall()
         frame_options = [row[0] for row in frames]
         
-        selected_frames = st.multiselect(
+        # Make frame options readable
+        readable_frame_options = [frame.replace('_', ' ').title() for frame in frame_options]
+        frame_mapping = dict(zip(readable_frame_options, frame_options))
+        
+        selected_readable_frames = st.multiselect(
             "Filter by Frame",
-            options=frame_options,
-            default=frame_options,
-            help="LABOUR_NEED: Arguments for immigration | LABOUR_THREAT: Arguments against | RACIALISED: Character-based arguments | MIXED: Balanced views"
+            options=readable_frame_options,
+            default=readable_frame_options,
+            help="Labour Need: Arguments for immigration | Labour Threat: Arguments against | Racialised: Character-based arguments | Mixed: Balanced views"
         )
+        
+        # Convert back to database format
+        selected_frames = [frame_mapping[rf] for rf in selected_readable_frames]
     
     # Initialize historian
     historian = EvidenceBasedHistorian()
@@ -200,16 +221,17 @@ def main():
     where_conditions.append("confidence >= ?")
     params.append(min_confidence)
     
-    # Execute query
+    # Execute query - include all speaker data including verified speakers
     query = """
-        SELECT id, year, date, speaker, party, frame, quote, hansard_url, historian_analysis, confidence
+        SELECT id, year, date, speaker, party, frame, quote, hansard_url, historian_analysis, confidence,
+               corrected_speaker, enhanced_speaker, debate_title, verified_speaker
         FROM quotes
     """
     
     if where_conditions:
         query += " WHERE " + " AND ".join(where_conditions)
     
-    query += " ORDER BY confidence DESC, year, date"
+    query += f" ORDER BY {sort_options[selected_sort]}"
     
     results = db.execute(query, params).fetchall()
     
@@ -219,8 +241,71 @@ def main():
     
     if results:
         # Display results
-        for i, (quote_id, year, date, speaker, party, frame, quote, url, analysis, confidence) in enumerate(results):
-            with st.expander(f"{speaker} ({date}) - {frame}", expanded=False):
+        for i, (quote_id, year, date, original_speaker, party, frame, quote, url, analysis, confidence, corrected_speaker, enhanced_speaker, debate_title, verified_speaker) in enumerate(results):
+            # Use best available speaker name - verified speaker has highest priority
+            speaker = verified_speaker or corrected_speaker or enhanced_speaker or original_speaker
+            # Make frame readable
+            readable_frame = frame.replace('_', ' ').title()
+            
+            # Use extracted debate title if available, otherwise URL-based context
+            if debate_title:
+                debate_context = f"{debate_title} - "
+            else:
+                # Fallback to URL-based extraction
+                debate_context = ""
+                if 'aliens' in url.lower():
+                    debate_context = "Aliens Act Debate - "
+                elif 'unemployment' in url.lower():
+                    debate_context = "Unemployment Debate - "
+                elif 'labour' in url.lower():
+                    debate_context = "Labour Debate - "
+            
+            # Convert date to British format (DD/MM/YYYY)
+            try:
+                # Assuming date is in YYYY-MM-DD or DD/MM/YYYY format from database
+                if '-' in date and len(date.split('-')[0]) == 4:
+                    # Convert from YYYY-MM-DD to DD/MM/YYYY
+                    year, month, day = date.split('-')
+                    british_date = f"{day}/{month}/{year}"
+                else:
+                    british_date = date  # Already in correct format or different format
+            except:
+                british_date = date  # Fallback to original if parsing fails
+            
+            # Clean up debate title for header
+            def clean_debate_title(title):
+                if not title:
+                    return ""
+                # Remove trailing periods and extra spaces
+                title = title.strip().rstrip('.')
+                # Take first part before em dash or regular dash
+                if '—' in title:
+                    title = title.split('—')[0].strip()
+                elif ' - ' in title and len(title) > 40:
+                    title = title.split(' - ')[0].strip()
+                # Limit length and clean up
+                if len(title) > 35:
+                    title = title[:32] + "..."
+                return title
+            
+            # Use cleaned debate title
+            clean_title = clean_debate_title(debate_title) if debate_title else ""
+            if clean_title:
+                debate_context = f"{clean_title} - "
+            elif 'aliens' in url.lower():
+                debate_context = "Aliens Act Debate - "
+            elif 'unemployment' in url.lower():
+                debate_context = "Unemployment Debate - "
+            elif 'labour' in url.lower():
+                debate_context = "Labour Debate - "
+            else:
+                debate_context = ""
+            
+            # Create clean readable header (no frame)
+            party_info = f" ({party})" if party else ""
+            header = f"{british_date}: {debate_context}{speaker}{party_info}"
+            
+            with st.expander(header, expanded=False):
                 
                 # Historian Analysis
                 if not analysis:
@@ -238,7 +323,7 @@ def main():
                 # Metadata
                 col_a, col_b, col_c = st.columns(3)
                 with col_a:
-                    st.write(f"**Date:** {date}")
+                    st.write(f"**📅 Date:** {british_date}")
                     st.write(f"**Year:** {year}")
                 
                 with col_b:
@@ -256,7 +341,8 @@ def main():
         
         # Frame breakdown
         frame_counts = {}
-        for _, _, _, _, _, frame, _, _, _, _ in results:
+        for row in results:
+            frame = row[5]  # frame is the 6th column (0-indexed)
             frame_counts[frame] = frame_counts.get(frame, 0) + 1
         
         col_x, col_y = st.columns(2)
@@ -265,12 +351,14 @@ def main():
             st.write("**Frame Distribution:**")
             for frame, count in sorted(frame_counts.items()):
                 percentage = (count / len(results)) * 100
-                st.write(f"• {frame}: {count} ({percentage:.1f}%)")
+                readable_frame = frame.replace('_', ' ').title()
+                st.write(f"• {readable_frame}: {count} ({percentage:.1f}%)")
         
         with col_y:
             if len(selected_years) > 1:
                 year_counts = {}
-                for _, year, _, _, _, _, _, _, _, _ in results:
+                for row in results:
+                    year = row[1]  # year is the 2nd column (0-indexed)
                     year_counts[year] = year_counts.get(year, 0) + 1
                 
                 st.write("**Year Distribution:**")
@@ -280,9 +368,13 @@ def main():
         # Download option
         st.markdown("---")
         
-        # Prepare data for download
-        df = pd.DataFrame(results, columns=['ID', 'Year', 'Date', 'Speaker', 'Party', 'Frame', 'Quote', 'Hansard_URL', 'Analysis', 'Confidence'])
-        df = df.drop(['ID', 'Confidence'], axis=1)  # Remove technical fields from export
+        # Prepare data for download  
+        df = pd.DataFrame(results, columns=['ID', 'Year', 'Date', 'Speaker', 'Party', 'Frame', 'Quote', 'Hansard_URL', 'Analysis', 'Confidence', 'Corrected_Speaker', 'Enhanced_Speaker', 'Debate_Title', 'Verified_Speaker'])
+        # Create a final speaker column using the same priority logic
+        df['Final_Speaker'] = df['Verified_Speaker'].fillna(df['Corrected_Speaker']).fillna(df['Enhanced_Speaker']).fillna(df['Speaker'])
+        # Keep only essential columns for export
+        df = df[['Year', 'Date', 'Final_Speaker', 'Party', 'Frame', 'Quote', 'Hansard_URL', 'Analysis', 'Debate_Title']]
+        df = df.rename(columns={'Final_Speaker': 'Speaker'})
         csv = df.to_csv(index=False)
         
         st.download_button(
@@ -297,7 +389,7 @@ def main():
     
     # Footer
     st.markdown("---")
-    st.markdown("*Academic Research Tool | UK Parliamentary Debates on Immigration & Labour (1900-1930) | Enhanced with linkage patterns and confidence scoring*")
+    st.markdown("*Academic Research Tool | UK Parliamentary Debates on Immigration & Labour (1900-1925) | Enhanced with chronological organization, debate context, and confidence scoring*")
 
 if __name__ == "__main__":
     main()
