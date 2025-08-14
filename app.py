@@ -118,18 +118,24 @@ st.markdown("""
 
 @st.cache_resource
 def get_database():
-    """Get database connection with Claude AI analysis"""
-    # Force use of updated database with Claude analysis
-    db_path = "database_updated.db"
+    """Get database connection with pithy Claude AI analysis"""
+    # Use clean database with pithy analyses
+    db_path = "database_clean.db"
     
     if Path(db_path).exists():
         return sqlite3.connect(db_path, check_same_thread=False)
     
-    # Fallback only if updated db doesn't exist
-    fallback_path = "hansard_simple.db"
+    # Fallback to verbose version
+    fallback_path = "database_updated.db"
     if Path(fallback_path).exists():
-        st.warning("Using fallback database - Claude AI analysis may not be available")
+        st.warning("Using verbose analysis database - may contain lengthy descriptions")
         return sqlite3.connect(fallback_path, check_same_thread=False)
+    
+    # Final fallback
+    original_path = "hansard_simple.db"
+    if Path(original_path).exists():
+        st.warning("Using original database - Claude AI analysis may not be available")
+        return sqlite3.connect(original_path, check_same_thread=False)
     
     st.error("Database not found. Please contact the administrator.")
     st.stop()
