@@ -308,17 +308,43 @@ class EvidenceBasedHistorian:
                 immigrant_term = 'foreign immigration'
             return f"Connects {immigrant_term} to {econ_concept} concerns during {context}"
         
-        # Frame-based fallback with context
+        # More specific content-based analysis instead of generic fallbacks
+        elif 'policy' in quote_lower or 'bill' in quote_lower or 'act' in quote_lower:
+            if 'exclusion' in quote_lower or 'restrict' in quote_lower:
+                return f"Discusses restrictive immigration policy mechanisms during {context}"
+            elif 'admission' in quote_lower or 'allow' in quote_lower:
+                return f"Addresses immigration admission criteria during {context}"
+            else:
+                return f"Examines immigration legislation and policy framework during {context}"
+        
+        elif 'question' in quote_lower and ('ask' in quote_lower or 'beg to ask' in quote_lower):
+            return f"Parliamentary inquiry about immigration-related administrative matters during {context}"
+        
+        elif 'statistics' in quote_lower or 'figures' in quote_lower or 'number' in quote_lower:
+            return f"Requests or presents immigration data and statistics during {context}"
+        
+        elif evidence['geographic_references']:
+            geo_ref = evidence['geographic_references'][0]
+            return f"Addresses immigration impacts on {geo_ref} during {context}"
+        
+        # Frame-based analysis with more specificity
         elif frame == 'LABOUR_THREAT':
-            return f"Expresses concerns about labour market threats during {context}"
+            return f"Warns of economic displacement and wage depression from immigration during {context}"
         elif frame == 'LABOUR_NEED':
-            return f"Argues for labour market needs during {context}"
+            return f"Advocates for immigration to meet labour shortages during {context}"
         elif frame == 'RACIALISED':
-            return f"Frames immigration in terms of national character during {context}"
+            return f"Frames immigration in terms of national character and cultural concerns during {context}"
         elif frame == 'MIXED':
-            return f"Presents balanced view of immigration during {context}"
+            return f"Presents nuanced view weighing immigration costs and benefits during {context}"
         else:
-            return f"Discusses immigration policy during {context}"
+            # Last resort - but more specific than "discusses immigration policy"
+            if evidence['immigrant_terms']:
+                immigrant_term = evidence['immigrant_terms'][0]
+                if immigrant_term == 'alien':
+                    immigrant_term = 'alien presence'
+                return f"Addresses the question of {immigrant_term} in Britain during {context}"
+            else:
+                return f"Contributes to parliamentary discourse on immigration control during {context}"
 
     def analyze_quote(self, quote_id: int) -> Optional[str]:
         """Analyze a specific quote with evidence-based approach"""
