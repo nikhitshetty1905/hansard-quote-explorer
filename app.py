@@ -221,12 +221,33 @@ def main():
     where_conditions.append("confidence >= ?")
     params.append(min_confidence)
     
-    # Execute query - include all speaker data including verified speakers
-    query = """
-        SELECT id, year, date, speaker, party, frame, quote, hansard_url, historian_analysis, confidence,
-               corrected_speaker, enhanced_speaker, debate_title, verified_speaker
-        FROM quotes
-    """
+    # Execute query - check if verified_speaker column exists
+    try:
+        # Try to get column info to see what columns exist
+        db_columns = db.execute("PRAGMA table_info(quotes)").fetchall()
+        column_names = [col[1] for col in db_columns]
+        
+        # Build query based on available columns
+        base_columns = "id, year, date, speaker, party, frame, quote, hansard_url, historian_analysis, confidence"
+        optional_columns = []
+        
+        if 'corrected_speaker' in column_names:
+            optional_columns.append('corrected_speaker')
+        if 'enhanced_speaker' in column_names:
+            optional_columns.append('enhanced_speaker')
+        if 'debate_title' in column_names:
+            optional_columns.append('debate_title')
+        if 'verified_speaker' in column_names:
+            optional_columns.append('verified_speaker')
+        
+        if optional_columns:
+            query = f"SELECT {base_columns}, {', '.join(optional_columns)} FROM quotes"
+        else:
+            query = f"SELECT {base_columns} FROM quotes"
+            
+    except Exception as e:
+        # Fallback to basic query if column check fails
+        query = "SELECT id, year, date, speaker, party, frame, quote, hansard_url, historian_analysis, confidence FROM quotes"
     
     if where_conditions:
         query += " WHERE " + " AND ".join(where_conditions)
@@ -241,7 +262,16 @@ def main():
     
     if results:
         # Display results
-        for i, (quote_id, year, date, original_speaker, party, frame, quote, url, analysis, confidence, corrected_speaker, enhanced_speaker, debate_title, verified_speaker) in enumerate(results):
+        for i, row in enumerate(results):
+            # Handle variable number of columns based on what's available
+            quote_id, year, date, original_speaker, party, frame, quote, url, analysis, confidence = row[:10]
+            
+            # Extract optional columns if they exist
+            corrected_speaker = row[10] if len(row) > 10 else None
+            enhanced_speaker = row[11] if len(row) > 11 else None
+            debate_title = row[12] if len(row) > 12 else None
+            verified_speaker = row[13] if len(row) > 13 else None
+            
             # Use best available speaker name - verified speaker has highest priority
             speaker = verified_speaker or corrected_speaker or enhanced_speaker or original_speaker
             # Make frame readable
@@ -368,13 +398,26 @@ def main():
         # Download option
         st.markdown("---")
         
-        # Prepare data for download  
-        df = pd.DataFrame(results, columns=['ID', 'Year', 'Date', 'Speaker', 'Party', 'Frame', 'Quote', 'Hansard_URL', 'Analysis', 'Confidence', 'Corrected_Speaker', 'Enhanced_Speaker', 'Debate_Title', 'Verified_Speaker'])
-        # Create a final speaker column using the same priority logic
-        df['Final_Speaker'] = df['Verified_Speaker'].fillna(df['Corrected_Speaker']).fillna(df['Enhanced_Speaker']).fillna(df['Speaker'])
-        # Keep only essential columns for export
-        df = df[['Year', 'Date', 'Final_Speaker', 'Party', 'Frame', 'Quote', 'Hansard_URL', 'Analysis', 'Debate_Title']]
-        df = df.rename(columns={'Final_Speaker': 'Speaker'})
+        # Prepare data for download - handle variable column counts
+        if results:
+            # Create base columns that always exist
+            base_data = []
+            for row in results:
+                # Extract the data we processed above
+                quote_id, year, date, original_speaker, party, frame, quote, url, analysis, confidence = row[:10]
+                
+                # Extract optional columns if they exist
+                corrected_speaker = row[10] if len(row) > 10 else None
+                enhanced_speaker = row[11] if len(row) > 11 else None
+                debate_title = row[12] if len(row) > 12 else None
+                verified_speaker = row[13] if len(row) > 13 else None
+                
+                # Use best available speaker
+                final_speaker = verified_speaker or corrected_speaker or enhanced_speaker or original_speaker
+                
+                base_data.append([year, date, final_speaker, party, frame, quote, url, analysis, debate_title or ""])
+            
+            df = pd.DataFrame(base_data, columns=['Year', 'Date', 'Speaker', 'Party', 'Frame', 'Quote', 'Hansard_URL', 'Analysis', 'Debate_Title'])
         csv = df.to_csv(index=False)
         
         st.download_button(
