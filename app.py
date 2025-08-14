@@ -118,13 +118,18 @@ st.markdown("""
 
 @st.cache_resource
 def get_database():
-    """Get database connection"""
-    # Try the updated database first, fallback to original
-    db_paths = ["database_updated.db", "hansard_simple.db"]
+    """Get database connection with Claude AI analysis"""
+    # Force use of updated database with Claude analysis
+    db_path = "database_updated.db"
     
-    for db_path in db_paths:
-        if Path(db_path).exists():
-            return sqlite3.connect(db_path, check_same_thread=False)
+    if Path(db_path).exists():
+        return sqlite3.connect(db_path, check_same_thread=False)
+    
+    # Fallback only if updated db doesn't exist
+    fallback_path = "hansard_simple.db"
+    if Path(fallback_path).exists():
+        st.warning("Using fallback database - Claude AI analysis may not be available")
+        return sqlite3.connect(fallback_path, check_same_thread=False)
     
     st.error("Database not found. Please contact the administrator.")
     st.stop()
@@ -134,7 +139,7 @@ def main():
     st.markdown("*Immigration × Labour Market Debates in UK Parliament*")
     
     # Info box
-    st.info("🏛️ **Academic Research Tool** | Explore 530+ parliamentary quotes on immigration and labour (1900-1930) with verified speaker attributions and enhanced framing analysis | Only high-quality quotes (confidence ≥ 5) are displayed")
+    st.info("🏛️ **Academic Research Tool** | Explore 530+ parliamentary quotes on immigration and labour (1900-1930) with Claude AI historical analysis, verified speaker attributions, and enhanced framing analysis | Only high-quality quotes (confidence ≥ 5) are displayed")
     
     db = get_database()
     
@@ -436,7 +441,7 @@ def main():
     
     # Footer
     st.markdown("---")
-    st.markdown("*Academic Research Tool | UK Parliamentary Debates on Immigration & Labour (1900-1925) | Enhanced with chronological organization, debate context, and confidence scoring*")
+    st.markdown("*Academic Research Tool | UK Parliamentary Debates on Immigration & Labour (1900-1930) | Enhanced with Claude AI historical analysis, verified speaker attributions, chronological organization, debate context, and confidence scoring*")
 
 if __name__ == "__main__":
     main()
