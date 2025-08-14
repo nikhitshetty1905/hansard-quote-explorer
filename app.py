@@ -351,9 +351,9 @@ def main():
                     analysis = historian.analyze_quote(quote_id)
                 
                 if analysis:
-                    st.markdown(f"**Historical Analysis:** *{analysis}*")
+                    st.markdown(f"**Analysis:** *{analysis}*")
                 else:
-                    st.markdown("**Historical Analysis:** *Analysis pending...*")
+                    st.markdown("**Analysis:** *Analysis pending...*")
                 
                 # Full quote
                 st.markdown("**Full Quote:**")
