@@ -119,11 +119,15 @@ st.markdown("""
 @st.cache_resource
 def get_database():
     """Get database connection"""
-    db_path = "hansard_simple.db"
-    if not Path(db_path).exists():
-        st.error("Database not found. Please contact the administrator.")
-        st.stop()
-    return sqlite3.connect(db_path, check_same_thread=False)
+    # Try the updated database first, fallback to original
+    db_paths = ["database_updated.db", "hansard_simple.db"]
+    
+    for db_path in db_paths:
+        if Path(db_path).exists():
+            return sqlite3.connect(db_path, check_same_thread=False)
+    
+    st.error("Database not found. Please contact the administrator.")
+    st.stop()
 
 def main():
     st.title("Hansard Quote Explorer (1900-1930)")
