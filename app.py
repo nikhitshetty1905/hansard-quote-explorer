@@ -131,7 +131,9 @@ def fix_speaker_name(speaker_name):
         'foreign office': 'Foreign Office',
         'prime minister': 'Prime Minister',
         'chancellor': 'Chancellor',
-        'attorney general': 'Attorney General'
+        'attorney general': 'Attorney General',
+        'regulation of native': 'Regulation of Native',
+        'regulation of native and immigra': 'Regulation of Native and Immigration'
     }
     
     name_lower = name.lower()
@@ -151,11 +153,11 @@ def fix_speaker_name(speaker_name):
     return ' '.join(fixed_words)
 
 def main():
-    # Eye-catching Header with improved design
+    # Clean Header with black background
     st.markdown(
         """
-        <div style="text-align: center; padding: 2rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -1rem -1rem 2rem -1rem; border-radius: 0 0 20px 20px;">
-            <h1 style="margin: 0; font-size: 3rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Hansard Quotes</h1>
+        <div style="text-align: center; padding: 2rem 0; background: #000000; color: white; margin: -1rem -1rem 2rem -1rem;">
+            <h1 style="margin: 0; font-size: 3rem; font-weight: bold;">Hansard Quotes</h1>
             <p style="margin: 0.5rem 0 0 0; font-size: 1.2rem; opacity: 0.9;">Debates at the intersection of Labour and Migration</p>
         </div>
         """,
@@ -343,6 +345,15 @@ def main():
                     return ""
                 # Remove trailing periods and extra spaces
                 title = title.strip().rstrip('.')
+                
+                # Fix all caps titles
+                if title.isupper():
+                    title = title.title()
+                
+                # Fix specific capitalization issues
+                title = title.replace('REGULATION OF NATIVE AND IMMIGRA', 'Regulation of Native and Immigration')
+                title = title.replace('REGULATION OF NATIVE', 'Regulation of Native')
+                
                 # Take first part before em dash or regular dash
                 if '—' in title:
                     title = title.split('—')[0].strip()
