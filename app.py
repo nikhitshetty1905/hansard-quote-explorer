@@ -82,10 +82,40 @@ def text_fragment_url(base_url: str, exact: str, prefix: str = "", suffix: str =
     return f"{base_url}#:~:{frag}"
 
 def make_hansard_link(url: str, quote: str, prefix: str = "", suffix: str = "") -> str:
-    """Public helper to create deep-linked Hansard URLs"""
-    # Use first 100 chars of quote for better matching
-    quote_excerpt = quote[:100].strip() if quote else ""
-    return text_fragment_url(url, quote_excerpt, prefix, suffix)
+    """Public helper to create deep-linked Hansard URLs with full quote highlighting"""
+    if not quote:
+        return url
+    
+    # Clean and normalize the quote for URL usage
+    clean_quote = normalize_text(quote.strip())
+    
+    # For very long quotes (>800 chars), use a smart excerpt strategy
+    if len(clean_quote) > 800:
+        # Use first 300 chars + last 100 chars to capture beginning and end
+        first_part = clean_quote[:300].strip()
+        last_part = clean_quote[-100:].strip()
+        
+        # Find a good break point (end of sentence or clause)
+        for punct in ['. ', '! ', '; ', ', ']:
+            if punct in first_part[-50:]:
+                break_point = first_part.rfind(punct) + len(punct)
+                if break_point > 250:  # Don't make it too short
+                    first_part = first_part[:break_point].strip()
+                    break
+        
+        # Create multiple text fragments
+        fragments = [first_part]
+        if last_part and not last_part in first_part:
+            fragments.append(last_part)
+        
+        # Build URL with multiple text fragments
+        frag_parts = [f"text={quote(normalize_text(frag))}" for frag in fragments if frag]
+        fragment_url = f"{url}#:~:{'&'.join(frag_parts)}"
+        
+        return fragment_url
+    
+    # For shorter quotes, use the full quote
+    return text_fragment_url(url, clean_quote, prefix, suffix)
 
 @st.cache_resource
 def get_database():
