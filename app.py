@@ -21,32 +21,289 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Clean styling - minimal approach for Streamlit Cloud
+# Exact Cloudflare Agents UI Match
 st.markdown("""
 <style>
+/* Import Inter font exactly as Cloudflare uses */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@300;400;500;600&display=swap');
+
+/* Reset and global styling */
+.main .block-container {
+    padding: 0;
+    max-width: none;
+}
+
+/* Exact Cloudflare color variables */
+:root {
+    --cf-orange: #FF6B00;
+    --cf-orange-hover: #e66000;
+    --cf-orange-light: #fff5ef;
+}
+
+/* Exact Cloudflare font stack */
+.cf-font {
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* Typography hierarchy matching Cloudflare */
+h1, h2, h3, .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, 
+.stSelectbox, .stMultiselect, .stSlider, .stButton, .stDownloadButton {
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+/* Body text with Inter */
+body, .stMarkdown, .stText, p, div, span {
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+/* Analysis text with serif complement */
+.analysis-text {
+    font-family: 'Source Serif 4', 'Georgia', 'Times New Roman', serif;
+    font-weight: 400;
+    font-style: normal;
+    line-height: 1.6;
+    color: #374151;
+    background: #f8fafc;
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--cf-orange);
+    margin: 1rem 0;
+}
+
+/* Hero section */
+.hero-section {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+    color: white;
+    text-align: center;
+    padding: 4rem 2rem;
+    margin: -1rem -1rem 3rem -1rem;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem 0;
+    letter-spacing: -0.03em;
+    color: var(--cf-orange);
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+.hero-subtitle {
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-size: 1.25rem;
+    font-weight: 400;
+    opacity: 0.9;
+    margin: 0;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+    color: white;
+}
+
+/* Content container */
+.content-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Professional orange color scheme */
+:root {
+    --cf-orange: #ff6600;
+    --cf-orange-hover: #e55a00;
+    --cf-orange-light: #fff4f0;
+}
+
+
+/* Controls section */
+.controls-section {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border: 1px solid #e2e8f0;
+}
+
+/* Exact Cloudflare primary button styling */
+.btn-primary { 
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: var(--cf-orange);
+    text-decoration: none;
+    color: #FFFFFF !important;
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.2;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-primary:hover { 
+    background: var(--cf-orange-hover);
+    color: #FFFFFF !important;
+}
+
+/* Exact Cloudflare secondary button styling */
+.btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--cf-orange);
+    border-radius: 0.5rem;
+    background: #FFFFFF;
+    text-decoration: none;
+    color: var(--cf-orange) !important;
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.2;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: var(--cf-orange-light);
+    color: var(--cf-orange) !important;
+}
+
+/* Legacy button class for compatibility */
 .btn-link { 
-    display: inline-block; 
-    padding: 8px 12px; 
-    border: 1px solid #ddd; 
-    border-radius: 6px; 
-    background: white; 
-    text-decoration: none; 
-    color: #111827; 
-    margin: 4px 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    background: var(--cf-orange);
+    text-decoration: none;
+    color: #FFFFFF !important;
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.2;
+    transition: background-color 0.2s ease;
+    cursor: pointer;
 }
-.btn-link:hover { background: #f5f5f5; }
-.header-wrap { 
-    padding: 8px 0 16px; 
-    border-bottom: 1px solid #eee; 
-    margin-bottom: 16px; 
+
+.btn-link:hover { 
+    background: var(--cf-orange-hover);
+    color: #FFFFFF !important;
 }
-.badge { 
-    display: inline-block; 
-    padding: 4px 8px; 
-    background: #f3f4f6; 
-    border-radius: 12px; 
-    font-size: 12px; 
-    color: #6b7280; 
+
+/* Quote cards with professional styling */
+.quote-expander {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    margin: 1.5rem 0;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.quote-expander:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: var(--cf-orange);
+}
+
+/* Cloudflare-style section headers */
+.section-header {
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--cf-orange);
+    text-align: center;
+    margin: 3rem 0 2rem 0;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+}
+
+.section-subheader {
+    font-family: "Inter", sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 2rem 0 1rem 0;
+    line-height: 1.2;
+}
+
+/* Summary grid */
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.summary-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    transition: all 0.3s ease;
+}
+
+.summary-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+}
+
+.summary-card h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 1rem 0;
+}
+
+/* Results counter */
+.results-counter {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #374151;
+    margin: 2rem 0;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Download section */
+.download-section {
+    text-align: center;
+    margin: 3rem 0;
+    padding: 2rem;
+    background: #f8fafc;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .content-container {
+        padding: 0 1rem;
+    }
+    
+    .controls-section {
+        padding: 1.5rem;
+    }
 }
 </style>
 """, unsafe_allow_html=True)
@@ -224,19 +481,22 @@ def fix_speaker_name(speaker_name):
     return ' '.join(fixed_words)
 
 def main():
-    # Clean Header with black background
+    # Professional Hero Section
     st.markdown(
         """
-        <div style="text-align: center; padding: 2rem 0; background: #000000; color: white; margin: -1rem -1rem 2rem -1rem;">
-            <h1 style="margin: 0; font-size: 3rem; font-weight: bold;">Hansard Quotes</h1>
-            <p style="margin: 0.5rem 0 0 0; font-size: 1.2rem; opacity: 0.9;">Debates at the intersection of Labour and Migration</p>
+        <div class="hero-section">
+            <div class="hero-title">Hansard Quotes</div>
+            <div class="hero-subtitle">Debates at the intersection of Labour and Migration</div>
+            <div style="font-family: 'Inter', sans-serif; font-size: 0.875rem; font-weight: 400; opacity: 0.7; margin-top: 1rem; max-width: 700px; margin-left: auto; margin-right: auto; line-height: 1.4;">
+                Academic Research Tool | Explore 530+ parliamentary quotes on immigration and labour (1900-1930), verified speaker attributions, and direct deep-links to exact quotes in original Hansard pages.
+            </div>
         </div>
         """,
         unsafe_allow_html=True
     )
     
-    # Info box with enhanced features
-    st.info("Academic Research Tool | Explore 530+ parliamentary quotes on immigration and labour (1900-1930), verified speaker attributions, and direct deep-links to exact quotes in original Hansard pages.")
+    # Content container
+    st.markdown('<div class="content-container">', unsafe_allow_html=True)
     
     db = get_database()
     
@@ -248,7 +508,10 @@ def main():
     
     available_years = [row[0] for row in years_data]
     
-    # Controls
+    # Professional Controls Section
+    st.markdown('<div class="controls-section">', unsafe_allow_html=True)
+    st.markdown('<h3 class="section-subheader">Filter & Search Options</h3>', unsafe_allow_html=True)
+    
     col1, col2, col3 = st.columns(3)
     
     with col1:
@@ -299,6 +562,8 @@ def main():
         
         # Convert back to database format
         selected_frames = [frame_mapping[rf] for rf in selected_readable_frames]
+    
+    st.markdown('</div>', unsafe_allow_html=True)  # Close controls section
     
     
     # Initialize historian
@@ -363,9 +628,16 @@ def main():
     
     results = db.execute(query, params).fetchall()
     
-    # Results info
+    # Results info with professional styling
     total_in_db = db.execute("SELECT COUNT(*) FROM quotes").fetchone()[0]
-    st.write(f"**{len(results)} high-quality quotes found** (from {total_in_db} total in database)")
+    st.markdown(
+        f"""
+        <div class="results-counter">
+            <strong>{len(results)} high-quality quotes found</strong> (from {total_in_db} total in database)
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
     
     if results:
         # Display results with enhanced cards
@@ -459,9 +731,9 @@ def main():
                     analysis = historian.analyze_quote(quote_id)
                 
                 if analysis:
-                    st.markdown(f"**Analysis:** *{analysis}*")
+                    st.markdown(f'<div class="analysis-text"><strong>Analysis:</strong> {analysis}</div>', unsafe_allow_html=True)
                 else:
-                    st.markdown("**Analysis:** *Analysis pending...*")
+                    st.markdown('<div class="analysis-text"><strong>Analysis:</strong> Analysis pending...</div>', unsafe_allow_html=True)
                 
                 # Full quote
                 st.markdown("**Full Quote:**")
@@ -486,9 +758,8 @@ def main():
                         unsafe_allow_html=True
                     )
         
-        # Summary statistics
-        st.markdown("---")
-        st.subheader("Summary")
+        # Professional Summary Section
+        st.markdown('<div class="section-header">Summary</div>', unsafe_allow_html=True)
         
         # Frame breakdown
         frame_counts = {}
@@ -496,14 +767,18 @@ def main():
             frame = row[5]  # frame is the 6th column (0-indexed)
             frame_counts[frame] = frame_counts.get(frame, 0) + 1
         
+        st.markdown('<div class="summary-grid">', unsafe_allow_html=True)
+        
         col_x, col_y = st.columns(2)
         
         with col_x:
-            st.write("**Frame Distribution:**")
+            st.markdown('<div class="summary-card">', unsafe_allow_html=True)
+            st.markdown('<h4>Frame Distribution</h4>', unsafe_allow_html=True)
             for frame, count in sorted(frame_counts.items()):
                 percentage = (count / len(results)) * 100
                 readable_frame = frame.replace('_', ' ').title()
                 st.write(f"• {readable_frame}: {count} ({percentage:.1f}%)")
+            st.markdown("</div>", unsafe_allow_html=True)
         
         with col_y:
             if len(selected_years) > 1:
@@ -512,12 +787,17 @@ def main():
                     year = row[1]  # year is the 2nd column (0-indexed)
                     year_counts[year] = year_counts.get(year, 0) + 1
                 
-                st.write("**Year Distribution:**")
+                st.markdown('<div class="summary-card">', unsafe_allow_html=True)
+                st.markdown('<h4>Year Distribution</h4>', unsafe_allow_html=True)
                 for year, count in sorted(year_counts.items()):
                     st.write(f"• {year}: {count}")
+                st.markdown("</div>", unsafe_allow_html=True)
         
-        # Download option
-        st.markdown("---")
+        st.markdown('</div>', unsafe_allow_html=True)  # Close summary grid
+        
+        # Professional Download Section
+        st.markdown('<div class="download-section">', unsafe_allow_html=True)
+        st.markdown('<h3 class="section-subheader">Export Data</h3>', unsafe_allow_html=True)
         
         # Prepare data for download - handle variable column counts
         if results:
@@ -551,9 +831,13 @@ def main():
             file_name=f"hansard_quotes_{min(selected_years)}_{max(selected_years)}.csv",
             mime="text/csv"
         )
+        st.markdown('</div>', unsafe_allow_html=True)  # Close download section
     
     else:
         st.info("No high-quality quotes found matching your criteria. Try adjusting the filters.")
+    
+    # Close content container
+    st.markdown('</div>', unsafe_allow_html=True)
     
     # Browser compatibility hint
     st.markdown(
@@ -574,9 +858,6 @@ def main():
         """,
         unsafe_allow_html=True
     )
-    
-    # Footer
-    st.markdown("---")
 
 if __name__ == "__main__":
     main()
