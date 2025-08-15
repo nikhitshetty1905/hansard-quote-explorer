@@ -236,7 +236,7 @@ def main():
     )
     
     # Info box with enhanced features
-    st.info("🗂️ **Academic Research Tool** | Explore 530+ parliamentary quotes on immigration and labour (1900-1930) with Claude AI analysis, verified speaker attributions, and **direct deep-links to exact quotes** in original Hansard pages | Only high-quality quotes (confidence ≥ 5) are displayed")
+    st.info("Academic Research Tool | Explore 530+ parliamentary quotes on immigration and labour (1900-1930), verified speaker attributions, and direct deep-links to exact quotes in original Hansard pages.")
     
     db = get_database()
     
@@ -577,7 +577,6 @@ def main():
     
     # Footer
     st.markdown("---")
-    st.markdown("*Academic Research Tool | UK Parliamentary Debates on Immigration & Labour (1900-1930) | Enhanced with Claude AI analysis, verified speaker attributions, deep-linking to exact quotes, and modern interface*")
 
 if __name__ == "__main__":
     main()
