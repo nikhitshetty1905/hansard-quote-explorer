@@ -6,7 +6,7 @@ import sqlite3
 import pandas as pd
 from pathlib import Path
 import os
-from urllib.parse import quote
+from urllib.parse import quote as url_quote
 import re
 from datetime import datetime
 
@@ -75,9 +75,9 @@ def text_fragment_url(base_url: str, exact: str, prefix: str = "", suffix: str =
         return base_url or ""
     
     if prefix_n or suffix_n:
-        frag = f"text={quote(prefix_n)}-,{quote(exact_n)},-{quote(suffix_n)}"
+        frag = f"text={url_quote(prefix_n)}-,{url_quote(exact_n)},-{url_quote(suffix_n)}"
     else:
-        frag = f"text={quote(exact_n)}"
+        frag = f"text={url_quote(exact_n)}"
     
     return f"{base_url}#:~:{frag}"
 
@@ -109,7 +109,7 @@ def make_hansard_link(url: str, quote: str, prefix: str = "", suffix: str = "") 
             fragments.append(last_part)
         
         # Build URL with multiple text fragments
-        frag_parts = [f"text={quote(normalize_text(frag))}" for frag in fragments if frag]
+        frag_parts = [f"text={url_quote(normalize_text(frag))}" for frag in fragments if frag]
         fragment_url = f"{url}#:~:{'&'.join(frag_parts)}"
         
         return fragment_url
