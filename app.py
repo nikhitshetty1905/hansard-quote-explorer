@@ -111,17 +111,52 @@ def get_database():
     st.error("Database not found. Please contact the administrator.")
     st.stop()
 
+def fix_speaker_name(speaker_name):
+    """Fix capitalization and formatting issues in speaker names"""
+    if not speaker_name:
+        return speaker_name
+    
+    # Remove trailing commas and periods
+    name = speaker_name.strip().rstrip(',.')
+    
+    # Fix all caps names like "SECRETARY of STATE" -> "Secretary of State"
+    if name.isupper():
+        name = name.title()
+    
+    # Fix mixed case issues
+    # Common titles that should be capitalized properly
+    title_fixes = {
+        'secretary of state': 'Secretary of State',
+        'home department': 'Home Department',
+        'foreign office': 'Foreign Office',
+        'prime minister': 'Prime Minister',
+        'chancellor': 'Chancellor',
+        'attorney general': 'Attorney General'
+    }
+    
+    name_lower = name.lower()
+    for wrong, correct in title_fixes.items():
+        if wrong in name_lower:
+            name = name_lower.replace(wrong, correct)
+    
+    # Fix "the SECRETARY" -> "the Secretary"
+    words = name.split()
+    fixed_words = []
+    for word in words:
+        if word.isupper() and len(word) > 1:
+            fixed_words.append(word.title())
+        else:
+            fixed_words.append(word)
+    
+    return ' '.join(fixed_words)
+
 def main():
-    # Modern Header
+    # Eye-catching Header with improved design
     st.markdown(
-        f"""
-        <div class="header-wrap">
-          <div>
-            <div class="badge">Hansard Quotes</div>
-            <h1 style="margin:6px 0 0 0;">Make quotes easy to find.</h1>
-            <div class="small">Clean UI. Links that open at the exact quote.</div>
-          </div>
-          <div class="small" style="color:#6B7280;">{datetime.now().strftime('%b %d, %Y')}</div>
+        """
+        <div style="text-align: center; padding: 2rem 0; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; margin: -1rem -1rem 2rem -1rem; border-radius: 0 0 20px 20px;">
+            <h1 style="margin: 0; font-size: 3rem; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.3);">Hansard Quotes</h1>
+            <p style="margin: 0.5rem 0 0 0; font-size: 1.2rem; opacity: 0.9;">Debates at the intersection of Labour and Migration</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -192,31 +227,6 @@ def main():
         # Convert back to database format
         selected_frames = [frame_mapping[rf] for rf in selected_readable_frames]
     
-    # Optional: Deep Link Tester
-    with st.expander("🔗 Build a deep link (tester)"):
-        st.markdown('<div class="input-block">', unsafe_allow_html=True)
-        _url = st.text_input("Hansard debate URL", key="dl_url")
-        _q = st.text_area("Exact quote (tight excerpt is best)", key="dl_q", height=100)
-        c1, c2 = st.columns(2)
-        with c1: _pre = st.text_input("Prefix (optional)", key="dl_pre")
-        with c2: _suf = st.text_input("Suffix (optional)", key="dl_suf")
-        if st.button("Generate link", key="dl_btn", use_container_width=True, type="primary"):
-            _link = make_hansard_link(_url, _q, _pre, _suf)
-            if _link:
-                st.markdown(
-                    f"""
-                    <div class="card">
-                      <div class="link-row">
-                        <a class="btn-link" href="{_link}" target="_blank" rel="noopener">Open link ↗</a>
-                      </div>
-                      <hr/>
-                      <div style="word-break:break-all; font-family:monospace; font-size:12px;">{_link}</div>
-                    </div>
-                    """, unsafe_allow_html=True
-                )
-            else:
-                st.caption("Enter a URL and a quote to generate a link.")
-        st.markdown('</div>', unsafe_allow_html=True)
     
     # Initialize historian
     historian = EvidenceBasedHistorian()
@@ -297,7 +307,8 @@ def main():
             verified_speaker = row[13] if len(row) > 13 else None
             
             # Use best available speaker name - verified speaker has highest priority
-            speaker = verified_speaker or corrected_speaker or enhanced_speaker or original_speaker
+            raw_speaker = verified_speaker or corrected_speaker or enhanced_speaker or original_speaker
+            speaker = fix_speaker_name(raw_speaker)
             # Make frame readable
             readable_frame = frame.replace('_', ' ').title()
             
@@ -442,7 +453,8 @@ def main():
                 verified_speaker = row[13] if len(row) > 13 else None
                 
                 # Use best available speaker
-                final_speaker = verified_speaker or corrected_speaker or enhanced_speaker or original_speaker
+                raw_final_speaker = verified_speaker or corrected_speaker or enhanced_speaker or original_speaker
+                final_speaker = fix_speaker_name(raw_final_speaker)
                 
                 # Add deep link for download
                 deep_link = make_hansard_link(url, quote)
