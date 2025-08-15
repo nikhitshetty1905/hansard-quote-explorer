@@ -116,7 +116,6 @@ For each match:
 3. **Explorer UI**: `explorer.py`
 4. `claude.md` (this file) as the spec reference
 
----
 
 ## CURRENT PROJECT STATUS (Updated)
 

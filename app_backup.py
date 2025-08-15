@@ -1,96 +1,120 @@
-# app.py - Enhanced Hansard Quote Explorer with Deep Linking
-# Immigration × Labour Market Debates (1900-1930)
+# app.py - Streamlit Cloud deployment version
+# Hansard Quote Explorer (1900-1930) - Immigration × Labour Market Debates
 
 import streamlit as st
 import sqlite3
 import pandas as pd
 from pathlib import Path
 import os
-from urllib.parse import quote
-import re
-from datetime import datetime
 
 # Import our modules
 from enhanced_historian import EvidenceBasedHistorian
 from enhanced_speaker_parser import EnhancedSpeakerParser
 
 st.set_page_config(
-    page_title="Hansard Quotes — Clean",
-    page_icon="🗂️",
+    page_title="Hansard Quote Explorer (1900-1930)", 
+    page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="collapsed"
 )
 
-# Modern Typography and Styling
-FONT_CSS = """
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+# Clean white background with SF Pro fonts
+st.markdown("""
 <style>
-:root{
-  --bg:#ffffff; --text:#111827; --muted:#6B7280; --soft:#F3F4F6; --line:#E5E7EB; --radius:16px;
-}
-html, body, [class*="css"] { font-family:'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; letter-spacing:.01em; }
-h1,h2,h3 { letter-spacing:-.01em; }
-.small{ color:var(--muted); font-size:.875rem; }
-
-.header-wrap{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0 24px; border-bottom:1px solid var(--line); margin-bottom:24px; }
-.badge{ display:inline-flex; gap:8px; align-items:center; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--muted); font-size:12px; }
-
-.card{ border:1px solid var(--line); border-radius:var(--radius); background:var(--bg); padding:18px; transition:120ms ease; }
-.card:hover{ box-shadow:0 6px 18px rgba(17,24,39,.06); transform:translateY(-1px); }
-
-.btn-link{ display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:#fff; text-decoration:none; color:var(--text); }
-.btn-link:hover{ background:var(--soft); }
-.link-row{ display:flex; flex-wrap:wrap; gap:10px; }
-
-.input-block{ border:1px solid var(--line); border-radius:var(--radius); padding:18px; background:var(--bg); }
-.kbd{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--soft); padding:2px 6px; border-radius:6px; border:1px solid var(--line); }
-hr{ border:none; border-top:1px solid var(--line); margin:18px 0; }
-
-/* Streamlit specific overrides */
-.stExpander { border: 1px solid var(--line) !important; border-radius: var(--radius) !important; }
-.stExpander > div > div { padding: 18px !important; }
-.stSelectbox > div > div { border-radius: 12px !important; }
-.stMultiSelect > div > div { border-radius: 12px !important; }
+    /* Global styling - white background, SF Pro fonts */
+    html, body, [data-testid="stAppViewContainer"] {
+        background-color: #ffffff !important;
+        font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    }
+    
+    .main {
+        background-color: #ffffff !important;
+        font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+    }
+    
+    .main * {
+        font-family: 'SF Pro Display', 'SF Pro Text', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+        color: #000000 !important;
+    }
+    
+    /* Main title styling */
+    h1 {
+        font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+        font-weight: 600 !important;
+        font-size: 2.5rem !important;
+        color: #000000 !important;
+        letter-spacing: -0.02em !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    /* Expander styling - clean white with black text */
+    .streamlit-expanderHeader {
+        font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+        font-weight: 500 !important;
+        font-size: 1rem !important;
+        color: #000000 !important;
+        background-color: #ffffff !important;
+        border: 1px solid #e0e0e0 !important;
+        border-radius: 6px !important;
+        padding: 14px 18px !important;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background-color: #f8f8f8 !important;
+        border-color: #cccccc !important;
+    }
+    
+    /* Expander content */
+    .streamlit-expanderContent {
+        background-color: #ffffff !important;
+        border: 1px solid #e0e0e0 !important;
+        border-top: none !important;
+        border-radius: 0 0 6px 6px !important;
+        padding: 28px !important;
+        line-height: 1.8 !important;
+    }
+    
+    /* Analysis text styling */
+    .main em {
+        font-style: italic !important;
+        color: #000000 !important;
+        font-weight: 400 !important;
+        line-height: 1.6 !important;
+    }
+    
+    /* Quote text - readable */
+    .main p {
+        font-family: 'SF Pro Text', -apple-system, BlinkMacSystemFont, system-ui, sans-serif !important;
+        line-height: 1.7 !important;
+        color: #000000 !important;
+        font-weight: 400 !important;
+        font-size: 16px !important;
+    }
+    
+    /* Force all text to be black */
+    .main div, .main span, .main label, .stMarkdown, .stText {
+        color: #000000 !important;
+    }
+    
+    /* Download button - black background, white text */
+    .stDownloadButton > button {
+        background-color: #000000 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+    }
+    
+    .stDownloadButton > button:hover {
+        background-color: #333333 !important;
+    }
+    
+    /* Links styling */
+    .main a {
+        color: #000000 !important;
+        text-decoration: underline !important;
+    }
 </style>
-"""
-st.markdown(FONT_CSS, unsafe_allow_html=True)
-
-# Text Fragment Deep Linking Helpers
-SMARTS = {"'":"'", "'":"'", """:'"', """:'"', "—":"-", "–":"-", "\u00A0":" "}
-
-def normalize_text(s: str) -> str:
-    """Normalize text for better URL fragment matching"""
-    if not s: return s
-    for k, v in SMARTS.items():
-        s = s.replace(k, v)
-    return re.sub(r"\s+", " ", s).strip()
-
-def text_fragment_url(base_url: str, exact: str, prefix: str = "", suffix: str = "") -> str:
-    """
-    Build Scroll-To-Text Fragment:  {url}#:~:text=prefix-,exact,-suffix
-    Use small prefix/suffix (2–4 words) if needed to disambiguate.
-    """
-    base_url = (base_url or "").strip()
-    exact_n = normalize_text(exact or "")
-    prefix_n = normalize_text(prefix or "")
-    suffix_n = normalize_text(suffix or "")
-    
-    if not base_url or not exact_n:
-        return base_url or ""
-    
-    if prefix_n or suffix_n:
-        frag = f"text={quote(prefix_n)}-,{quote(exact_n)},-{quote(suffix_n)}"
-    else:
-        frag = f"text={quote(exact_n)}"
-    
-    return f"{base_url}#:~:{frag}"
-
-def make_hansard_link(url: str, quote: str, prefix: str = "", suffix: str = "") -> str:
-    """Public helper to create deep-linked Hansard URLs"""
-    # Use first 100 chars of quote for better matching
-    quote_excerpt = quote[:100].strip() if quote else ""
-    return text_fragment_url(url, quote_excerpt, prefix, suffix)
+""", unsafe_allow_html=True)
 
 @st.cache_resource
 def get_database():
@@ -117,23 +141,11 @@ def get_database():
     st.stop()
 
 def main():
-    # Modern Header
-    st.markdown(
-        f"""
-        <div class="header-wrap">
-          <div>
-            <div class="badge">Hansard Quotes</div>
-            <h1 style="margin:6px 0 0 0;">Make quotes easy to find.</h1>
-            <div class="small">Clean UI. Links that open at the exact quote.</div>
-          </div>
-          <div class="small" style="color:#6B7280;">{datetime.now().strftime('%b %d, %Y')}</div>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
+    st.title("Hansard Quote Explorer (1900-1930)")
+    st.markdown("*Immigration × Labour Market Debates in UK Parliament*")
     
-    # Info box with enhanced features
-    st.info("🗂️ **Academic Research Tool** | Explore 530+ parliamentary quotes on immigration and labour (1900-1930) with Claude AI analysis, verified speaker attributions, and **direct deep-links to exact quotes** in original Hansard pages | Only high-quality quotes (confidence ≥ 5) are displayed")
+    # Info box
+    st.info("🏛️ **Academic Research Tool** | Explore 530+ parliamentary quotes on immigration and labour (1900-1930) with Claude AI historical analysis, verified speaker attributions, and enhanced framing analysis | Only high-quality quotes (confidence ≥ 5) are displayed")
     
     db = get_database()
     
@@ -196,32 +208,6 @@ def main():
         
         # Convert back to database format
         selected_frames = [frame_mapping[rf] for rf in selected_readable_frames]
-    
-    # Optional: Deep Link Tester
-    with st.expander("🔗 Build a deep link (tester)"):
-        st.markdown('<div class="input-block">', unsafe_allow_html=True)
-        _url = st.text_input("Hansard debate URL", key="dl_url")
-        _q = st.text_area("Exact quote (tight excerpt is best)", key="dl_q", height=100)
-        c1, c2 = st.columns(2)
-        with c1: _pre = st.text_input("Prefix (optional)", key="dl_pre")
-        with c2: _suf = st.text_input("Suffix (optional)", key="dl_suf")
-        if st.button("Generate link", key="dl_btn", use_container_width=True, type="primary"):
-            _link = make_hansard_link(_url, _q, _pre, _suf)
-            if _link:
-                st.markdown(
-                    f"""
-                    <div class="card">
-                      <div class="link-row">
-                        <a class="btn-link" href="{_link}" target="_blank" rel="noopener">Open link ↗</a>
-                      </div>
-                      <hr/>
-                      <div style="word-break:break-all; font-family:monospace; font-size:12px;">{_link}</div>
-                    </div>
-                    """, unsafe_allow_html=True
-                )
-            else:
-                st.caption("Enter a URL and a quote to generate a link.")
-        st.markdown('</div>', unsafe_allow_html=True)
     
     # Initialize historian
     historian = EvidenceBasedHistorian()
@@ -290,7 +276,7 @@ def main():
     st.write(f"**{len(results)} high-quality quotes found** (from {total_in_db} total in database)")
     
     if results:
-        # Display results with enhanced cards
+        # Display results
         for i, row in enumerate(results):
             # Handle variable number of columns based on what's available
             quote_id, year, date, original_speaker, party, frame, quote, url, analysis, confidence = row[:10]
@@ -324,8 +310,8 @@ def main():
                 # Assuming date is in YYYY-MM-DD or DD/MM/YYYY format from database
                 if '-' in date and len(date.split('-')[0]) == 4:
                     # Convert from YYYY-MM-DD to DD/MM/YYYY
-                    year_part, month, day = date.split('-')
-                    british_date = f"{day}/{month}/{year_part}"
+                    year, month, day = date.split('-')
+                    british_date = f"{day}/{month}/{year}"
                 else:
                     british_date = date  # Already in correct format or different format
             except:
@@ -366,7 +352,7 @@ def main():
             
             with st.expander(header, expanded=False):
                 
-                # Analysis
+                # Historian Analysis
                 if not analysis:
                     analysis = historian.analyze_quote(quote_id)
                 
@@ -379,7 +365,7 @@ def main():
                 st.markdown("**Full Quote:**")
                 st.write(quote)
                 
-                # Enhanced metadata with deep link
+                # Metadata
                 col_a, col_b, col_c = st.columns(3)
                 with col_a:
                     st.write(f"**📅 Date:** {british_date}")
@@ -392,12 +378,7 @@ def main():
                 
                 with col_c:
                     st.write(f"**Frame:** {frame}")
-                    # Enhanced deep link
-                    deep_link = make_hansard_link(url, quote)
-                    st.markdown(
-                        f'<a class="btn-link" href="{deep_link}" target="_blank" rel="noopener">View on Hansard ↗</a>', 
-                        unsafe_allow_html=True
-                    )
+                    st.markdown(f"**[View in Hansard]({url})**")
         
         # Summary statistics
         st.markdown("---")
@@ -449,12 +430,9 @@ def main():
                 # Use best available speaker
                 final_speaker = verified_speaker or corrected_speaker or enhanced_speaker or original_speaker
                 
-                # Add deep link for download
-                deep_link = make_hansard_link(url, quote)
-                
-                base_data.append([year, date, final_speaker, party, frame, quote, url, deep_link, analysis, debate_title or ""])
+                base_data.append([year, date, final_speaker, party, frame, quote, url, analysis, debate_title or ""])
             
-            df = pd.DataFrame(base_data, columns=['Year', 'Date', 'Speaker', 'Party', 'Frame', 'Quote', 'Hansard_URL', 'Deep_Link_URL', 'Analysis', 'Debate_Title'])
+            df = pd.DataFrame(base_data, columns=['Year', 'Date', 'Speaker', 'Party', 'Frame', 'Quote', 'Hansard_URL', 'Analysis', 'Debate_Title'])
         csv = df.to_csv(index=False)
         
         st.download_button(
@@ -467,29 +445,9 @@ def main():
     else:
         st.info("No high-quality quotes found matching your criteria. Try adjusting the filters.")
     
-    # Browser compatibility hint
-    st.markdown(
-        """
-        <script>
-        // If not supported, show a tiny hint as a tooltip on buttons (no UI flash if supported)
-        try {
-          if (!('fragmentDirective' in document)) {
-            for (const el of document.querySelectorAll('.btn-link')) {
-              if (!el.dataset.hinted) {
-                el.title = "If the page doesn't jump to the quote, press Ctrl/Cmd+F and paste the excerpt.";
-                el.dataset.hinted = "1";
-              }
-            }
-          }
-        } catch(e) {}
-        </script>
-        """,
-        unsafe_allow_html=True
-    )
-    
     # Footer
     st.markdown("---")
-    st.markdown("*Academic Research Tool | UK Parliamentary Debates on Immigration & Labour (1900-1930) | Enhanced with Claude AI analysis, verified speaker attributions, deep-linking to exact quotes, and modern interface*")
+    st.markdown("*Academic Research Tool | UK Parliamentary Debates on Immigration & Labour (1900-1930) | Enhanced with Claude AI historical analysis, verified speaker attributions, chronological organization, debate context, and confidence scoring*")
 
 if __name__ == "__main__":
     main()

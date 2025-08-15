@@ -1,0 +1,149 @@
+[
+  {
+    "house_of_commons_sitting": {
+      "start_column": "669",
+      "date_text": "Tuesday, 2nd May, 1905.",
+      "title": "HOUSE OF COMMONS.",
+      "volume_id": 549,
+      "id": 20207,
+      "year": 1905,
+      "end_column": "808",
+      "data_file_id": 20753,
+      "top_level_sections": [
+        {
+          "section": {
+            "slug": "preamble",
+            "start_column": "669",
+            "title": "Preamble",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351154,
+            "end_column": "669",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "mr-speakers-absence",
+            "start_column": "669",
+            "title": "MR. SPEAKER'S ABSENCE",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351155,
+            "end_column": "669",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "private-bill-business",
+            "start_column": "669",
+            "title": "PRIVATE BILL BUSINESS.",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351156,
+            "end_column": "670",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "petitions",
+            "start_column": "670",
+            "title": "PETITIONS.",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351157,
+            "end_column": "672",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "returns-reports-etc",
+            "start_column": "672",
+            "title": "RETURNS, REPORTS, ETC.",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351166,
+            "end_column": "675",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "oral_questions": {
+            "slug": "questions-and-answers-circulated-with",
+            "start_column": "675",
+            "title": "QUESTIONS AND ANSWERS CIRCULATED WITH THE VOTES",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351197,
+            "end_column": "686",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "business-of-the-house",
+            "start_column": "686",
+            "title": "BUSINESS OF THE HOUSE",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351223,
+            "end_column": "687",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "the-telephone-agreement",
+            "start_column": "687",
+            "title": "The Telephone Agreement",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351224,
+            "end_column": "687",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "new-bill",
+            "start_column": "687",
+            "title": "NEW BILL.",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351225,
+            "end_column": "687",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "aliens-bill",
+            "start_column": "687",
+            "title": "ALIENS BILL.",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351228,
+            "end_column": "768",
+            "parent_section_id": 351152
+          }
+        },
+        {
+          "section": {
+            "slug": "evening-sitting",
+            "start_column": "768",
+            "title": "EVENING SITTING.",
+            "sitting_id": 20207,
+            "date": "1905-05-02",
+            "id": 351252,
+            "end_column": "808",
+            "parent_section_id": 351152
+          }
+        }
+      ],
+      "chairman": null
+    }
+  }
+]

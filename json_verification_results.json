@@ -1,0 +1,134 @@
+{
+  "sitting_tests": [
+    {
+      "url": "https://api.parliament.uk/historic-hansard/sittings/1900/feb/12.js",
+      "status": "success",
+      "fetch_time": 0.8616137504577637,
+      "size": 4853,
+      "structure": {
+        "type": "list",
+        "length": 2,
+        "first_item_keys": [
+          "house_of_commons_sitting"
+        ],
+        "has_commons": true,
+        "has_lords": true
+      },
+      "debate_count": 20,
+      "houses": [
+        "commons",
+        "lords"
+      ]
+    },
+    {
+      "url": "https://api.parliament.uk/historic-hansard/sittings/1905/may/02.js",
+      "status": "success",
+      "fetch_time": 0.4752616882324219,
+      "size": 2535,
+      "structure": {
+        "type": "list",
+        "length": 1,
+        "first_item_keys": [
+          "house_of_commons_sitting"
+        ],
+        "has_commons": true,
+        "has_lords": false
+      },
+      "debate_count": 11,
+      "houses": [
+        "commons"
+      ]
+    },
+    {
+      "url": "https://api.parliament.uk/historic-hansard/sittings/1910/jan/15.js",
+      "status": "http_error",
+      "status_code": 404,
+      "error": "HTTP 404"
+    },
+    {
+      "url": "https://api.parliament.uk/historic-hansard/sittings/1914/aug/04.js",
+      "status": "success",
+      "fetch_time": 0.26439332962036133,
+      "size": 11025,
+      "structure": {
+        "type": "list",
+        "length": 3,
+        "first_item_keys": [
+          "house_of_commons_sitting"
+        ],
+        "has_commons": true,
+        "has_lords": true
+      },
+      "debate_count": 41,
+      "houses": [
+        "commons",
+        "lords"
+      ]
+    },
+    {
+      "url": "https://api.parliament.uk/historic-hansard/sittings/1918/nov/11.js",
+      "status": "success",
+      "fetch_time": 0.6370058059692383,
+      "size": 6149,
+      "structure": {
+        "type": "list",
+        "length": 2,
+        "first_item_keys": [
+          "house_of_commons_sitting"
+        ],
+        "has_commons": true,
+        "has_lords": true
+      },
+      "debate_count": 24,
+      "houses": [
+        "commons",
+        "lords"
+      ]
+    },
+    {
+      "url": "https://api.parliament.uk/historic-hansard/sittings/1920/mar/10.js",
+      "status": "success",
+      "fetch_time": 0.3355240821838379,
+      "size": 4125,
+      "structure": {
+        "type": "list",
+        "length": 2,
+        "first_item_keys": [
+          "house_of_commons_sitting"
+        ],
+        "has_commons": true,
+        "has_lords": false
+      },
+      "debate_count": 6,
+      "houses": [
+        "commons"
+      ]
+    },
+    {
+      "url": "https://api.parliament.uk/historic-hansard/sittings/1925/apr/20.js",
+      "status": "http_error",
+      "status_code": 404,
+      "error": "HTTP 404"
+    },
+    {
+      "url": "https://api.parliament.uk/historic-hansard/sittings/1930/jan/10.js",
+      "status": "http_error",
+      "status_code": 404,
+      "error": "HTTP 404"
+    }
+  ],
+  "debate_tests": [
+    {
+      "url": "https://api.parliament.uk/historic-hansard/commons/1905/may/02/aliens-bill.js",
+      "status": "http_error",
+      "status_code": 404
+    },
+    {
+      "url": "https://api.parliament.uk/historic-hansard/commons/1905/may/02/aliens-bill-1.js",
+      "status": "http_error",
+      "status_code": 404
+    }
+  ],
+  "structure_analysis": {},
+  "coverage_summary": {}
+}
