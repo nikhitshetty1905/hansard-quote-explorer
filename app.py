@@ -147,6 +147,11 @@ def fix_speaker_name(speaker_name):
     for word in words:
         if word.isupper() and len(word) > 1:
             fixed_words.append(word.title())
+        elif '-' in word:
+            # Fix hyphenated names like "Evans-gordon" -> "Evans-Gordon"
+            parts = word.split('-')
+            fixed_parts = [part.title() if part.islower() or part.isupper() else part for part in parts]
+            fixed_words.append('-'.join(fixed_parts))
         else:
             fixed_words.append(word)
     
