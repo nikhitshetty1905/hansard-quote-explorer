@@ -21,40 +21,35 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Modern Typography and Styling
-FONT_CSS = """
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+# Clean styling - minimal approach for Streamlit Cloud
+st.markdown("""
 <style>
-:root{
-  --bg:#ffffff; --text:#111827; --muted:#6B7280; --soft:#F3F4F6; --line:#E5E7EB; --radius:16px;
+.btn-link { 
+    display: inline-block; 
+    padding: 8px 12px; 
+    border: 1px solid #ddd; 
+    border-radius: 6px; 
+    background: white; 
+    text-decoration: none; 
+    color: #111827; 
+    margin: 4px 0;
 }
-html, body, [class*="css"] { font-family:'Inter', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; letter-spacing:.01em; }
-h1,h2,h3 { letter-spacing:-.01em; }
-.small{ color:var(--muted); font-size:.875rem; }
-
-.header-wrap{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:8px 0 24px; border-bottom:1px solid var(--line); margin-bottom:24px; }
-.badge{ display:inline-flex; gap:8px; align-items:center; padding:6px 10px; border-radius:999px; background:var(--soft); color:var(--muted); font-size:12px; }
-
-.card{ border:1px solid var(--line); border-radius:var(--radius); background:var(--bg); padding:18px; transition:120ms ease; }
-.card:hover{ box-shadow:0 6px 18px rgba(17,24,39,.06); transform:translateY(-1px); }
-
-.btn-link{ display:inline-flex; align-items:center; gap:8px; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:#fff; text-decoration:none; color:var(--text); }
-.btn-link:hover{ background:var(--soft); }
-.link-row{ display:flex; flex-wrap:wrap; gap:10px; }
-
-.input-block{ border:1px solid var(--line); border-radius:var(--radius); padding:18px; background:var(--bg); }
-.kbd{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace; background:var(--soft); padding:2px 6px; border-radius:6px; border:1px solid var(--line); }
-hr{ border:none; border-top:1px solid var(--line); margin:18px 0; }
-
-/* Streamlit specific overrides */
-.stExpander { border: 1px solid var(--line) !important; border-radius: var(--radius) !important; }
-.stExpander > div > div { padding: 18px !important; }
-.stSelectbox > div > div { border-radius: 12px !important; }
-.stMultiSelect > div > div { border-radius: 12px !important; }
+.btn-link:hover { background: #f5f5f5; }
+.header-wrap { 
+    padding: 8px 0 16px; 
+    border-bottom: 1px solid #eee; 
+    margin-bottom: 16px; 
+}
+.badge { 
+    display: inline-block; 
+    padding: 4px 8px; 
+    background: #f3f4f6; 
+    border-radius: 12px; 
+    font-size: 12px; 
+    color: #6b7280; 
+}
 </style>
-"""
-st.markdown(FONT_CSS, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # Text Fragment Deep Linking Helpers
 SMARTS = {"'":"'", "'":"'", """:'"', """:'"', "—":"-", "–":"-", "\u00A0":" "}
