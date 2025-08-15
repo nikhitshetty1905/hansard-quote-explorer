@@ -81,41 +81,77 @@ def text_fragment_url(base_url: str, exact: str, prefix: str = "", suffix: str =
     
     return f"{base_url}#:~:{frag}"
 
+def clean_quote_for_matching(quote: str) -> str:
+    """Clean quote text for better matching with Hansard pages"""
+    if not quote:
+        return quote
+    
+    # Basic normalization
+    text = normalize_text(quote.strip())
+    
+    # Remove common parliamentary formatting that might not match
+    text = re.sub(r'\bhon\.\s+Member\b', 'hon. Member', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bMr\.\s+Speaker\b', 'Mr. Speaker', text, flags=re.IGNORECASE)
+    
+    # Remove extra quotes and formatting
+    text = re.sub(r'[""''`]', '"', text)
+    text = re.sub(r'\s+', ' ', text)
+    
+    return text.strip()
+
 def make_hansard_link(url: str, quote: str, prefix: str = "", suffix: str = "") -> str:
-    """Public helper to create deep-linked Hansard URLs with full quote highlighting"""
+    """Public helper to create deep-linked Hansard URLs with multiple fallback strategies"""
     if not quote:
         return url
     
-    # Clean and normalize the quote for URL usage
-    clean_quote = normalize_text(quote.strip())
+    clean_quote = clean_quote_for_matching(quote)
     
-    # For very long quotes (>800 chars), use a smart excerpt strategy
-    if len(clean_quote) > 800:
-        # Use first 300 chars + last 100 chars to capture beginning and end
-        first_part = clean_quote[:300].strip()
-        last_part = clean_quote[-100:].strip()
+    # Strategy 1: Try distinctive middle portion (often works better than start/end)
+    if len(clean_quote) > 200:
+        # Find a good middle excerpt (avoid "I beg to ask" beginnings)
+        start_pos = max(50, len(clean_quote) // 4)
+        middle_length = min(200, len(clean_quote) - start_pos)
+        middle_part = clean_quote[start_pos:start_pos + middle_length]
         
-        # Find a good break point (end of sentence or clause)
-        for punct in ['. ', '! ', '; ', ', ']:
-            if punct in first_part[-50:]:
-                break_point = first_part.rfind(punct) + len(punct)
-                if break_point > 250:  # Don't make it too short
-                    first_part = first_part[:break_point].strip()
-                    break
+        # Find sentence boundaries
+        for punct in ['. ', '! ', '; ']:
+            if punct in middle_part[:50]:
+                sentence_start = middle_part.find(punct) + len(punct)
+                middle_part = middle_part[sentence_start:].strip()
+                break
         
-        # Create multiple text fragments
-        fragments = [first_part]
-        if last_part and not last_part in first_part:
-            fragments.append(last_part)
-        
-        # Build URL with multiple text fragments
-        frag_parts = [f"text={url_quote(normalize_text(frag))}" for frag in fragments if frag]
-        fragment_url = f"{url}#:~:{'&'.join(frag_parts)}"
-        
-        return fragment_url
+        if len(middle_part) > 30:  # Only use if substantial
+            fragments = [middle_part[:150]]  # Limit to 150 chars for reliability
+        else:
+            fragments = [clean_quote[:150]]  # Fallback to beginning
+    else:
+        fragments = [clean_quote]
     
-    # For shorter quotes, use the full quote
-    return text_fragment_url(url, clean_quote, prefix, suffix)
+    # Strategy 2: Add first sentence as backup
+    first_sentence_match = re.match(r'^[^.!?]+[.!?]', clean_quote)
+    if first_sentence_match and len(first_sentence_match.group()) > 20:
+        first_sentence = first_sentence_match.group().strip()
+        if first_sentence not in ' '.join(fragments):
+            fragments.append(first_sentence)
+    
+    # Strategy 3: Add most distinctive phrase (words not common in all quotes)
+    distinctive_words = []
+    for word in clean_quote.split():
+        if len(word) > 6 and word.lower() not in ['secretary', 'whether', 'colonies', 'question', 'member']:
+            distinctive_words.append(word)
+    
+    if len(distinctive_words) >= 3:
+        distinctive_phrase = ' '.join(distinctive_words[:5])
+        if len(distinctive_phrase) > 20 and distinctive_phrase not in ' '.join(fragments):
+            fragments.append(distinctive_phrase)
+    
+    # Build URL with multiple fallback fragments
+    frag_parts = [f"text={url_quote(frag)}" for frag in fragments[:3] if frag and len(frag) > 15]
+    if frag_parts:
+        return f"{url}#:~:{'&'.join(frag_parts)}"
+    
+    # Final fallback
+    return text_fragment_url(url, clean_quote[:100], prefix, suffix)
 
 @st.cache_resource
 def get_database():
@@ -435,7 +471,6 @@ def main():
                 col_a, col_b, col_c = st.columns(3)
                 with col_a:
                     st.write(f"**📅 Date:** {british_date}")
-                    st.write(f"**Year:** {year}")
                 
                 with col_b:
                     st.write(f"**Speaker:** {speaker}")
